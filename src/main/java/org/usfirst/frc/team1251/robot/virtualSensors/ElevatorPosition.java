@@ -6,6 +6,7 @@ import edu.wpi.first.wpilibj.Encoder;
 import org.usfirst.frc.team1251.robot.RobotMap;
 
 public class ElevatorPosition {
+    public static final int NEAR_MAX_THRESHOLD = 900;
     private Encoder elevatorEncoder;
     private DigitalInput bottomSwitch;
     private final double GEAR_RATIO = 3.21428571428;
@@ -13,7 +14,7 @@ public class ElevatorPosition {
     private final double GEAR_CIRCUMFERENCE = Math.PI; // Inches per turn | # of buckets
     private final double TICKS_PER_INCH = TICKS_PER_GEAR_TURN / GEAR_CIRCUMFERENCE;
 
-    private final static double MAX_HEIGHT = 72; // in inches
+    private final static double MAX_HEIGHT = 4000; // in ticks
 
     private final static boolean NORMALLY_OFF = false;
 
@@ -37,10 +38,22 @@ public class ElevatorPosition {
     }
 
     public boolean isAtMaxHeight() {
-        return getHeight() >= MAX_HEIGHT;
+        return getTicks() >= MAX_HEIGHT;
     }
 
     public boolean isAtMinHeight() {
         return bottomSwitch.get() == NORMALLY_OFF;
+    }
+
+    public void reset() {
+        elevatorEncoder.reset();
+    }
+
+    public boolean isNearMaxHeight(){
+        return getTicks() >= (MAX_HEIGHT-NEAR_MAX_THRESHOLD);
+    }
+
+    public boolean isNearBottom() {
+        return getTicks() <= 500;
     }
 }

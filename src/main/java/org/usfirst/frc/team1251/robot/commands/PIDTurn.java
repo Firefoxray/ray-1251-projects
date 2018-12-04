@@ -1,7 +1,6 @@
 package org.usfirst.frc.team1251.robot.commands;
 
 import edu.wpi.first.wpilibj.command.PIDCommand;
-import org.usfirst.frc.team1251.robot.subsystems.DriveTrain;
 import org.usfirst.frc.team1251.robot.virtualSensors.DriveFeedback;
 
 public class PIDTurn extends PIDCommand {
@@ -17,17 +16,17 @@ public class PIDTurn extends PIDCommand {
 
     private static final double PERIOD = 0.01;
 
-    private DriveTrain driveTrain;
+    //private DriveTrain driveTrain;
     private DriveFeedback driveFeedback;
     private double desiredAngle;
     private Direction direction;
 
 
-    public PIDTurn(DriveTrain driveTrain, DriveFeedback driveFeedback, double desiredAngle) {
+    public PIDTurn(DriveFeedback driveFeedback, double desiredAngle) {
         super(P, I, D, PERIOD);
 
         this.desiredAngle = desiredAngle;
-        this.driveTrain = driveTrain;
+        //this.driveTrain = driveTrain;
         this.driveFeedback = driveFeedback;
         this.setInputRange(0.0, 360.0);
         this.getPIDController().setAbsoluteTolerance(1.0);
@@ -55,12 +54,18 @@ public class PIDTurn extends PIDCommand {
 
     @Override
     protected void usePIDOutput(double output) {
+
+    }
+
+    /**
+    @Override
+    protected void usePIDOutput(double output) {
         if (direction == Direction.COUNTER_CLOCKWISE) {
             driveTrain.setSpeed(-output, output);
         } else {
             driveTrain.setSpeed(output, -output);
         }
-    }
+    **/
 
     private double distanceToTarget() {
         driveFeedback.updateSensorData();

@@ -15,12 +15,10 @@ import org.usfirst.frc.team1251.robot.teleopInput.triggers.GamePadButtonTrigger;
 public class HumanInput {
     private static final double ELEVATOR_DEAD_ZONE = 0.1;
     private static final double ARM_DEAD_ZONE = 0.1;
-    private final GamePadButtonTrigger shiftDriveTrainUpTrigger;
-    private final GamePadButtonTrigger shiftDriveTrainDownTrigger;
-    private final GamePadButtonTrigger shiftElevatorUpTrigger;
-    private final GamePadButtonTrigger shiftElevatorDownTrigger;
-    private final GamePadButtonTrigger collectCrateTrigger;
-    private final GamePadButtonTrigger openClawTrigger;
+    private final GamePadButtonTrigger PistonOutTrigger;
+    private final GamePadButtonTrigger PistonInTrigger;
+    private final GamePadButtonTrigger BigMotorHighTrigger;
+    private final GamePadButtonTrigger BigMotorLowTrigger;
 
     private boolean commandTriggersAttached = false;
 
@@ -50,10 +48,6 @@ public class HumanInput {
      */
     private final StickSmoothing rightWheelSmoothing;
 
-    /**
-     * A game pad trigger which is used to activate the crate-collection command.
-     */
-    private final GamePadButtonTrigger ejectCrateTrigger;
 
     /**
      *
@@ -72,15 +66,11 @@ public class HumanInput {
                 this.driverGamePad.rs(),StickSmoothing.StickAxis.VERTICAL, WHEEL_SPEED_SMOOTHING_SAMPLES);
 
         // Use the right-bumper to trigger create collection.
-        this.ejectCrateTrigger = new GamePadButtonTrigger(this.operatorGamePad.lb());
-        this.collectCrateTrigger = new GamePadButtonTrigger(this.operatorGamePad.rb());
-        this.openClawTrigger = new GamePadButtonTrigger(this.operatorGamePad.rt());
+        this.BigMotorHighTrigger = new GamePadButtonTrigger(this.operatorGamePad.x());
+        this.BigMotorLowTrigger = new GamePadButtonTrigger(this.operatorGamePad.a());
 
-        this.shiftDriveTrainUpTrigger = new GamePadButtonTrigger(this.driverGamePad.rt());
-        this.shiftDriveTrainDownTrigger = new GamePadButtonTrigger(this.driverGamePad.lt());
-
-        this.shiftElevatorUpTrigger = new GamePadButtonTrigger(this.operatorGamePad.y());
-        this.shiftElevatorDownTrigger = new GamePadButtonTrigger(this.operatorGamePad.b());
+        this.PistonOutTrigger = new GamePadButtonTrigger(this.operatorGamePad.y());
+        this.PistonInTrigger = new GamePadButtonTrigger(this.operatorGamePad.b());
     }
 
     /**
@@ -88,15 +78,12 @@ public class HumanInput {
      *
      * This method should only ever be called once.
      *
-     * @param collectCrate The crate-collection Command.
+     *
      */
-    public void attachCommandTriggers(CollectCrate collectCrate,
-                                      ShiftDriveTrain shiftDriveTrainUp,
-                                      ShiftDriveTrain shiftDriveTrainDown,
-                                      ShiftElevator shiftElevatorUp,
-                                      ShiftElevator shiftElevatorDown,
-                                      Eject eject,
-                                      OpenClaw openClaw) {
+    public void attachCommandTriggers(ShiftElevator shiftPistonOut,
+                                      ShiftElevator shiftPistonIn,
+                                      BigMotorLow bigMotorLow,
+                                      BigMotorHigh bigMotorHigh) {
         // Prevent duplicate bindings.
         if (commandTriggersAttached) {
             return;
@@ -104,16 +91,12 @@ public class HumanInput {
         commandTriggersAttached = true;
 
         // Bind buttons.
-        collectCrateTrigger.whileHeld(collectCrate);
-        ejectCrateTrigger.whileHeld(eject);
 
-        shiftDriveTrainUpTrigger.whileHeld(shiftDriveTrainUp);
-        shiftDriveTrainDownTrigger.whileHeld(shiftDriveTrainDown);
+        PistonOutTrigger.whileHeld(shiftPistonOut);
+        PistonInTrigger.whileHeld(shiftPistonIn);
 
-        shiftElevatorUpTrigger.whileHeld(shiftElevatorUp);
-        shiftElevatorDownTrigger.whileHeld(shiftElevatorDown);
-
-        openClawTrigger.whileHeld(openClaw);
+        BigMotorHighTrigger.whenPressed(bigMotorLow);
+        BigMotorLowTrigger.whenPressed(bigMotorHigh);
 
     }
 
@@ -153,7 +136,7 @@ public class HumanInput {
      * @return A value between 0 and 1 representing the speed at which to move the elevator where the speed increases as the value approaches 1.
      *
      */
-    public double getElevatorUpSpeed() {
+    public double getBigMotorForwardSpeed() {
         double elevatorStick = operatorGamePad.ls().getVertical(ELEVATOR_DEAD_ZONE);
         if (elevatorStick > 0){
             return elevatorStick;
@@ -168,7 +151,7 @@ public class HumanInput {
      * @return A value between 0 and 1 representing the speed at which to move the elevator where the speed increases
      *     as the value approaches 1.
      */
-    public double getElevatorDownSpeed() {
+    public double getBigMotorReverseSpeed() {
         double elevatorStick = operatorGamePad.ls().getVertical(ELEVATOR_DEAD_ZONE);
         if (elevatorStick < 0){
             return Math.abs(elevatorStick);

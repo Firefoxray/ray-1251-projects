@@ -25,8 +25,8 @@ public class RobotMap
         static final int MOTOR_COLLECTOR_LEFT  = 8;
         static final int MOTOR_COLLECTOR_RIGHT = 7;
         static final int MOTOR_ARM = 9;
-        static final int MOTOR_ELEVATOR_1 = 1;
-        static final int MOTOR_ELEVATOR_2 = 2;
+        static final int MOTOR_BIG_1 = 1;
+        static final int MOTOR_BIG_2 = 2;
     }
 
     private static class DioDevices {
@@ -48,13 +48,13 @@ public class RobotMap
         static final int SOLENOID_FORWARD_CLAW = 2;
         static final int SOLENOID_REVERSE_CLAW = 5;
 
-        static final int SOLENOID_FORWARD_ELEVATOR_SHIFTER = 1;
-        static final int SOLENOID_REVERSE_ELEVATOR_SHIFTER = 6;
+        static final int SOLENOID_FORWARD_ELEVATOR_SHIFTER = 3; //Piston Forward
+        static final int SOLENOID_REVERSE_ELEVATOR_SHIFTER = 4; //Piston Backward
     }
 
     private static class CanDevices {
 
-        static final int MOTOR_LEFT_LEADER = 15;
+        static final int MOTOR_LEFT_LEADER = 0;
         static final int MOTOR_LEFT_FOLLOWER_1 = 14;
         static final int MOTOR_LEFT_FOLLOWER_2 = 13;
         static final int MOTOR_LEFT_FOLLOWER_3 = 12;
@@ -77,8 +77,10 @@ public class RobotMap
     public static final int ARM_LOWER_LIMIT_SWITCH = DioDevices.SWITCH_ARM_BOTTOM;
     public static final int ARM_POTENTIOMETER = AnalogDevices.POTENTIOMETER_ARM;
 
-    public static final int ELEVATOR_MOTOR_1 = PwmDevices.MOTOR_ELEVATOR_1;
-    public static final int ELEVATOR_MOTOR_2 = PwmDevices.MOTOR_ELEVATOR_2;
+    //public static final int ELEVATOR_MOTOR_1 = PwmDevices.MOTOR_ELEVATOR_1;
+    //public static final int ELEVATOR_MOTOR_2 = PwmDevices.MOTOR_ELEVATOR_2;
+    public static final int BIG_MOTOR_1 = PwmDevices.MOTOR_BIG_1;
+    public static final int BIG_MOTOR_2 = PwmDevices.MOTOR_BIG_2;
     public static final int ELEVATOR_ENCODER_CHANNEL_A = DioDevices.ENCODER_ELEVATOR_CHANNEL_A;
     public static final int ELEVATOR_ENCODER_CHANNEL_B = DioDevices.ENCODER_ELEVATOR_CHANNEL_B;
     public static final int ELEVATOR_BOTTOM_LIMIT_SWITCH = DioDevices.SWITCH_ELEVATOR_BOTTOM;
