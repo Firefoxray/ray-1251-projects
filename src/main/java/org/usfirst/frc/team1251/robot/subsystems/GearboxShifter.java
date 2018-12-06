@@ -5,13 +5,12 @@ import edu.wpi.first.wpilibj.command.Command;
 import org.usfirst.frc.team1251.robot.RobotMap;
 import org.usfirst.frc.team1251.robot.commands.DeferredCmdSupplier;
 
-public class DriveTrainShifter extends DoubleSolenoidGearShifter {
+public class GearboxShifter extends DoubleSolenoidGearShifter {
 
-    public DriveTrainShifter(DeferredCmdSupplier<Command> defaultCommand) {
+    public GearboxShifter(DeferredCmdSupplier<Command> defaultCommand)
+    {
         super(defaultCommand);
         this.isInverted = false;
-        this.solenoid = new DoubleSolenoid(RobotMap.DRIVE_SHIFTER_FORWARD, RobotMap.DRIVE_SHIFTER_REVERSE);
+        this.solenoid = new DoubleSolenoid(RobotMap.GEARBOX_SHIFTER_HIGH, RobotMap.GEARBOX_SHIFTER_LOW);
     }
-
-
 }

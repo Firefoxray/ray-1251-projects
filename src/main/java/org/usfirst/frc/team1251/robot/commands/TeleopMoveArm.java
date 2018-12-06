@@ -2,7 +2,6 @@ package org.usfirst.frc.team1251.robot.commands;
 
 import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import org.usfirst.frc.team1251.robot.subsystems.Arm;
 import org.usfirst.frc.team1251.robot.teleopInput.driverInput.HumanInput;
 
 public class TeleopMoveArm extends Command {

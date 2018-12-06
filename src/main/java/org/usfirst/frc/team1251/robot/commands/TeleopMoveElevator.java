@@ -1,7 +1,6 @@
 package org.usfirst.frc.team1251.robot.commands;
 
 import edu.wpi.first.wpilibj.command.Command;
-import org.usfirst.frc.team1251.robot.subsystems.Elevator;
 import org.usfirst.frc.team1251.robot.teleopInput.driverInput.HumanInput;
 
 public class TeleopMoveElevator extends Command {

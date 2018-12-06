@@ -6,20 +6,12 @@ import edu.wpi.first.wpilibj.buttons.Trigger;
 import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import org.usfirst.frc.team1251.robot.commands.*;
 import org.usfirst.frc.team1251.robot.subsystems.*;
 import org.usfirst.frc.team1251.robot.teleopInput.driverInput.HumanInput;
 import org.usfirst.frc.team1251.robot.teleopInput.gamepad.GamePad;
 import org.usfirst.frc.team1251.robot.teleopInput.gamepad.ModernGamePad;
-import org.usfirst.frc.team1251.robot.teleopInput.triggers.Always;
-import org.usfirst.frc.team1251.robot.triggers.ArmDownJustNowTrigger;
-import org.usfirst.frc.team1251.robot.triggers.CubeCollectedTrigger;
-import org.usfirst.frc.team1251.robot.virtualSensors.ArmPosition;
-import org.usfirst.frc.team1251.robot.virtualSensors.CrateDetector;
-import org.usfirst.frc.team1251.robot.virtualSensors.DriveFeedback;
-import org.usfirst.frc.team1251.robot.virtualSensors.ElevatorPosition;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -31,29 +23,15 @@ import org.usfirst.frc.team1251.robot.virtualSensors.ElevatorPosition;
 public class Robot extends IterativeRobot {
 
     //private PowerDistributionPanel pdp = new PowerDistributionPanel();
-    private DriveTrain driveTrain;
-    private Claw claw;
-    private Collector collector;
-
-
-    //public static final DriveTrain driveTrain = new DriveTrain();
-
-
-    private AutoChooser autoChooser;
-
-    private Command autonomousCommand;
-    private SendableChooser chooser;
-    private DriveFeedback driveFeedback;
-    private TeleopDrive teleopDriveCmd;
-    private DriveTrainAutoShift driveTrainAutoShift;
-    private DriveTrainShifter driveTrainShifter;
-    private Arm arm;
-    private Elevator elevator;
-    private ArmPosition armPosition;
-    private ElevatorPosition elevatorPosition;
-    private CloseClaw closeClawCmd;
-    private CrateDetector crateDetector;
     private HumanInput humanInput;
+    private Gearbox gearbox;
+    private SmallMotor smallMotor;
+    private MoveGearbox moveGearbox;
+    private MoveSmallMotor moveSmallMotor;
+    private MovePiston movePiston;
+
+
+
 
     /**
      * This function is run when the robot is first started up and should be
@@ -62,115 +40,44 @@ public class Robot extends IterativeRobot {
     public void robotInit() {
 
         // Set up driver input
-        GamePad driverGamePad = new ModernGamePad(new Joystick(0));
-        GamePad crateGamePad = new ModernGamePad(new Joystick(1));
+        GamePad gamePad = new ModernGamePad(new Joystick(0));
+        GamePad dummyGamePad = new ModernGamePad(new Joystick(1));
 
-        HumanInput humanInput = new HumanInput(driverGamePad, crateGamePad);
+        HumanInput humanInput = new HumanInput(gamePad, dummyGamePad);
 
         SmartDashboard.putBoolean("Reset Encoders", false);
 
         // Create virtual sensors (used by mechanisms, subsystems and commands)
-        ArmPosition armPosition = new ArmPosition();
-        ElevatorPosition elevatorPosition = new ElevatorPosition();
-        CrateDetector crateDetector = new CrateDetector();
-        DriveFeedback driveFeedback = new DriveFeedback();
 
         // Create subsystems (used by commands)
         // Use `DeferredCmdSupplier` to handle the chicken/egg problem with default commands
-        DeferredCmdSupplier<Command> armDefaultCmdSupplier = new DeferredCmdSupplier<>();
-        Arm arm = new Arm(armPosition, armDefaultCmdSupplier);
+        DeferredCmdSupplier<Command> gearboxDefaultCmdSupplier = new DeferredCmdSupplier<>();
+        Gearbox gearbox = new Gearbox(gearboxDefaultCmdSupplier);
 
-        DeferredCmdSupplier<Command> elevatorDefaultCmdSupplier = new DeferredCmdSupplier<>();
-        Elevator elevator = new Elevator(elevatorPosition, elevatorDefaultCmdSupplier);
+        DeferredCmdSupplier<Command> smallmotorDefaultCmdSupplier = new DeferredCmdSupplier<>();
+        SmallMotor smallmotor = new SmallMotor(smallmotorDefaultCmdSupplier);
 
-        Collector collector = new Collector(crateDetector);
-
-        // Claw will get a default command on teleop init
-        DeferredCmdSupplier<Command> clawDefaultCmdSupplier = new DeferredCmdSupplier<>();
-        Claw claw = new Claw(clawDefaultCmdSupplier);
-
-        // We will never provide a default command to be used during initialization for the DriveTrain or the
-        // DriveTrainShifter -- we will set it manually when tele-op initializes. Feed in an empty command supplier.
-        DriveTrain driveTrain = new DriveTrain(new DeferredCmdSupplier<>(), driveFeedback);
-
-        // We will never provide a default command to be used during initialization for the DriveTrainShifter -- we will
-        // set it manually when tele-op initializes. Feed in an empty command supplier.
-        DriveTrainShifter driveTrainShifter = new DriveTrainShifter(new DeferredCmdSupplier<>());
-
-        // We will never provide a default command to be used during initialization for the ElevatorShifter -- we will
-        // set it manually when tele-op initializes. Feed in an empty command supplier.
-        ElevatorShifter elevatorShifter = new ElevatorShifter(new DeferredCmdSupplier<>());
 
         // Create commands
-        CloseClaw closeClaw = new CloseClaw(claw);
-        OpenClaw openClaw  = new OpenClaw(claw);
-        CollectCrate collectCrate = new CollectCrate(crateDetector, collector);
-        TeleopMoveArm moveArm = new TeleopMoveArm(humanInput, arm);
-        TeleopMoveElevator moveElevator = new TeleopMoveElevator(humanInput, elevator);
-        TeleopDrive teleopDrive = new TeleopDrive(humanInput, driveTrain, driveFeedback);
-        DriveTrainAutoShift driveTrainAutoShift = new DriveTrainAutoShift(driveFeedback, driveTrainShifter);
-        ShiftDriveTrain shiftDriveTrainUp = new ShiftDriveTrain(driveTrainShifter, DriveTrainShifter.Gear.HIGH);
-        ShiftDriveTrain shiftDriveTrainDown = new ShiftDriveTrain(driveTrainShifter, DriveTrainShifter.Gear.LOW);
-        ShiftElevator shiftElevatorUp = new ShiftElevator(elevatorShifter, ElevatorShifter.Gear.HIGH);
-        ShiftElevator shiftElevatorDown = new ShiftElevator(elevatorShifter, ElevatorShifter.Gear.LOW);
-        Eject cubeEject = new Eject(collector, humanInput);
-        SustainElevator sustainElevator = new SustainElevator(elevator);
-
-
-
+        MoveGearbox moveGearbox = new MoveGearbox(humanInput, gearbox);
+        MovePiston movePiston = new MovePiston();
+        MoveSmallMotor moveSmallMotor = new MoveSmallMotor(humanInput, smallmotor);
 
         // Assign default commands
-        armDefaultCmdSupplier.set(moveArm);
-        elevatorDefaultCmdSupplier.set(moveElevator);
+        gearboxDefaultCmdSupplier.set(moveGearbox);
+        smallmotorDefaultCmdSupplier.set(moveSmallMotor);
 
 
         // assign driver-initiated command triggers.
-        humanInput.attachCommandTriggers(collectCrate, shiftDriveTrainUp, shiftDriveTrainDown,
-                shiftElevatorUp, shiftElevatorDown, cubeEject, openClaw, sustainElevator);
+        humanInput.attachCommandTriggers(moveGearbox, movePiston, moveSmallMotor);
 
-
-        // Uncomment to test a controller on port 5
-        //initGamepadTest();
-
-        // TODO: Do we need a chooser?
-        // chooser = new SendableChooser();
-        // chooser.addDefault("Default Auto", new MoveElevator());
-//        chooser.addObject("My Auto", new MyAutoCommand());
-        // SmartDashboard.putData("Auto mode", chooser);
-
-        this.crateDetector = crateDetector;
         this.humanInput = humanInput;
-
-        this.driveFeedback = driveFeedback;
-
-        this.driveTrain = driveTrain;
-        this.driveTrainShifter = driveTrainShifter;
-
-        this.teleopDriveCmd = teleopDrive;
-        this.closeClawCmd = closeClaw;
-        this.driveTrainAutoShift = driveTrainAutoShift;
-
-        this.claw = claw;
-        this.collector = collector;
-
-        this.arm = arm;
-        this.elevator = elevator;
-        this.armPosition = armPosition;
-        this.elevatorPosition = elevatorPosition;
-
-        autoChooser = new AutoChooser(arm, armPosition,
-                elevator, elevatorPosition,
-                claw, collector,
-                driveTrain, driveFeedback, driveTrainShifter);
-
-        driveFeedback.reset();
+        this.gearbox = gearbox;
+        this.smallMotor = smallmotor;
+        this.moveGearbox = moveGearbox;
+        this.moveSmallMotor = moveSmallMotor;
+        this.movePiston = movePiston;
     }
-
-    private void initGamepadTest() {
-        Trigger trigger = new Always();
-        trigger.whileActive(new TestGamepad());
-    }
-
 
     /**
      * This function is called once each time the robot enters Disabled mode.
@@ -196,14 +103,7 @@ public class Robot extends IterativeRobot {
      */
     public void autonomousInit() {
         System.out.println("Auto Init");
-        this.driveTrain.setDefaultCommand(null);
-        this.driveTrainShifter.setDefaultCommand(null);
-        driveTrainShifter.setGear(DoubleSolenoidGearShifter.Gear.HIGH);
-        TestAuto testAuto = new TestAuto(driveTrain, driveFeedback, this.driveTrainShifter, this.elevator, this.arm, this.armPosition, this.claw, this.collector, elevatorPosition);
-        //testAuto.start();
-
         MotorFactory.setBrakeMode(false);
-        autoChooser.initialize();
     }
 
     /**
@@ -218,22 +118,9 @@ public class Robot extends IterativeRobot {
         // teleop starts running. If you want the autonomous to
         // continue until interrupted by another command, remove
         // this line or comment it out.
-        if (autonomousCommand != null) autonomousCommand.cancel();
-        this.driveTrain.setDefaultCommand(this.teleopDriveCmd);
-        this.claw.setDefaultCommand(this.closeClawCmd);
+        this.moveGearbox.setDefaultCommand(this.moveGearboxCmd);
+        this.moveSmallMotor.setDefaultCommand(this.moveSmallMotorCmd);
         MotorFactory.setBrakeMode(false);
-
-        // Create a command to slow arm decent and attach it to a trigger which indicates that the arm is down as
-        // far as it is supposed to go.
-        SlowArmDecent slowArmDecent = new SlowArmDecent(arm);
-
-        // Attach sensor-based command triggers
-        ArmDownJustNowTrigger armDownJustNowTrigger = new ArmDownJustNowTrigger(armPosition);
-        armDownJustNowTrigger.whenActive(slowArmDecent);
-
-        (new CubeCollectedTrigger(crateDetector)).whenActive(new CubeCollected(humanInput));
-
-
     }
 
     /**
